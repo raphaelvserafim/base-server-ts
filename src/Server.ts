@@ -63,8 +63,8 @@ import * as pages from "@app/controllers/pages/index";
     "cookie-parser",
     "compression",
     "method-override",
-    "json-parser",
-    { use: "urlencoded-parser", options: { extended: true } }
+    { use: "json-parser", options: { limit: "510mb" } },
+    { use: "urlencoded-parser", options: { extended: true, limit: "510mb" } },
   ],
   views: {
     root: join(process.cwd(), "../views"),

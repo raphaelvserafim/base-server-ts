@@ -1,9 +1,10 @@
 import { $log } from "@tsed/common";
 import { PlatformExpress } from "@tsed/platform-express";
 
-import { Server } from "./Server";
+import { Server } from "@app/Server";
 import { Server as HttpServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
+import { SocketServices } from "@app/services";
 
 
 async function bootstrap() {
@@ -18,6 +19,9 @@ async function bootstrap() {
         methods: ["GET", "POST"]
       }
     });
+
+    SocketServices.getInstance().setSocketServer(io);
+
 
     await new Promise<void>((resolve, reject) => {
       httpServer.listen(process.env.PORT, (err?: any) => {

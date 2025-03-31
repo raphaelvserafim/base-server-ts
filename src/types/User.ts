@@ -4,3 +4,7 @@ export interface UserAttributes {
   email: string;
   password: string;
 }
+
+export interface AuthSession {
+  userId: number;
+}

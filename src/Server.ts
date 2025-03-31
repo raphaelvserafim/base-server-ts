@@ -30,12 +30,27 @@ import * as pages from "@app/controllers/pages/index";
       path: "/doc",
       options: {
         tryItOutEnabled: true,
+        showMutatedRequest: false,
+        showMutatedResponse: false
       },
       spec: {
         info: {
-          version: '2.0.0',
-          title: 'Server TS',
-        }
+          version: '1.0.0',
+          title: 'Base API',
+          description: 'Base API documentation',
+          contact: {
+            name: 'API Support',
+            url: 'https://github.com/raphaelvserafim',
+          },
+        },
+        securityDefinitions: {
+          BearerAuth: {
+            type: "apiKey",
+            in: "header",
+            name: "Authorization",
+            description: "JWT Authorization header using the Bearer scheme"
+          }
+        },
       },
     }
   ],

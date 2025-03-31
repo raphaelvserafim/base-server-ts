@@ -1,4 +1,4 @@
-import { Env } from "@app/schema/Env";
+import { Env } from '@app/types';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -6,7 +6,7 @@ const env = process.env;
 
 export const getEnv = (): Env => {
   const envKeys = Object.keys(env);
-  const requiredEnvKeys = ["ADMIN_KEY", "DB_HOST", "DB_NAME", "DB_USER", "DB_PASS"];
+  const requiredEnvKeys = ["ADMIN_KEY", "DB_HOST", "DB_NAME", "DB_USER", "DB_PASS", "DB_dialect"];
   const missingEnvKeys = requiredEnvKeys.filter(
     (key) => !envKeys.includes(key)
   );
@@ -19,6 +19,7 @@ export const getEnv = (): Env => {
     DB_NAME: env.DB_NAME as string,
     DB_USER: env.DB_USER as string,
     DB_PASS: env.DB_PASS as string,
+    DB_PORT: env.DB_PORT ? parseInt(env.DB_PORT) : 3306,
     TOKEN_SEND_GRID: env.TOKEN_SEND_GRID as string,
     EMAIL_NOTIFICATIONS: env.EMAIL_NOTIFICATIONS as string,
     SYSTEM_NAME: env.SYSTEM_NAME as string,

@@ -4,6 +4,7 @@ export interface Env {
   DB_NAME: string,
   DB_USER: string,
   DB_PASS: string,
+  DB_PORT: number,
   TOKEN_SEND_GRID: string,
   EMAIL_NOTIFICATIONS: string,
   SYSTEM_NAME: string,

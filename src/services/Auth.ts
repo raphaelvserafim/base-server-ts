@@ -37,7 +37,7 @@ export class ServiceAuth extends User {
         throwError(401, "invalid password");
       }
 
-      const session = this.generateSession({ user: user.dataValues.id });
+      const session = this.generateSession({ userId: user.dataValues.id, });
       return { status: 200, session };
     } catch (error) {
       return returnError(error);
@@ -56,7 +56,7 @@ export class ServiceAuth extends User {
 
       const user = await this.userCreate(data);
       if (user.dataValues.id) {
-        const session = this.generateSession({ user: user.dataValues.id });
+        const session = this.generateSession({ userId: user.dataValues.id, });
         return { status: 201, session };
       } else {
         throwError(400, "error creating user");
@@ -135,31 +135,41 @@ export class ServiceAuth extends User {
 
       const existingProvider = await UserProviders.findOne({ where: providerData });
 
-      if (!existingProvider?.dataValues.userId && email && name) {
+      let session;
+
+      if (!existingProvider?.dataValues.userId) {
+        if (!email) throwError(400, "email not found");
         const user = await this.userByEmail(email);
 
         if (!user?.dataValues.id) {
+          if (!name) throwError(400, "name not found");
           const newUser = await this.userCreate({ name, email, password: generateRandomToken(10) });
           if (!newUser.dataValues.id) throwError(409, "Error creating user");
           await this.linkUserProvider(newUser.dataValues.id, providerData, picture, locale);
+
+          session = this.generateSession({ userId: newUser.dataValues.id });
         } else {
           await this.linkUserProvider(user.dataValues.id, providerData, picture, locale);
           if (!user.dataValues.emailVerified) await this.verifyUserEmail(user.dataValues.id, picture);
+
+          session = this.generateSession({ userId: user.dataValues.id });
         }
       } else {
         const user = await Users.findByPk(existingProvider?.dataValues.userId);
         if (!user?.dataValues.id) throwError(409, "User not found");
 
         if (!user.dataValues.emailVerified) await this.verifyUserEmail(user.dataValues.id, picture);
+
+        session = this.generateSession({ userId: user.dataValues.id });
       }
 
-      return { status: 200, message: "Successfully authenticated" };
+      return { status: 200, session, message: "Successfully authenticated" };
     } catch (error) {
       return returnError(error);
     }
   }
 
-  private async linkUserProvider(userId: number, providerData: { clientId: string; provider: string }, picture: string, locale: string) {
+  private async linkUserProvider(userId: number, providerData: { clientId: string; provider: PROVIDERS }, picture: string, locale: string) {
     await UserProviders.create({ userId, clientId: providerData.clientId, provider: providerData.provider, picture, locale });
   }
 

@@ -1,7 +1,7 @@
-import { Login, Register, UpdatedPassword } from "@app/schema/Auth";
-import { ServiceAuth } from "@app/services/Auth";
+import { GoogleCredential, Login, Register, UpdatedPassword } from "@app/schema";
+import { ServiceAuth } from "@app/services";
 import { BodyParams, Controller, Post, Res } from "@tsed/common";
-import { Description, Name, Put } from "@tsed/schema";
+import { Description, Name, Put, Summary } from "@tsed/schema";
 
 @Controller('/auth')
 @Name("AuthController")
@@ -36,4 +36,12 @@ export class AuthController {
     const response = await this.auth.updatePassword(data);
     return resp.status(response.status).json({ ...response });
   }
+
+  @Post("/google")
+  @Summary("auth google")
+  async Google(@Res() resp: Res, @BodyParams() data: GoogleCredential) {
+    const response = await this.auth.google(data);
+    return resp.status(response.status).json({ ...response });
+  }
+
 }

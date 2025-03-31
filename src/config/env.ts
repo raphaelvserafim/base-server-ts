@@ -24,5 +24,6 @@ export const getEnv = (): Env => {
     EMAIL_NOTIFICATIONS: env.EMAIL_NOTIFICATIONS as string,
     SYSTEM_NAME: env.SYSTEM_NAME as string,
     JWT_KEY: env.JWT_KEY as string,
+    GOOLE_CLIENT_ID: env.GOOLE_CLIENT_ID as string,
   };
 };

@@ -28,7 +28,15 @@ class Users extends Model<UserAttributes> {
           type: DataTypes.STRING,
           allowNull: false
         },
-
+        emailVerified: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false
+        },
+        picture: {
+          type: DataTypes.STRING,
+          allowNull: true
+        },
       },
       {
         sequelize,

@@ -1,5 +1,5 @@
 import { Register } from "@app/schema/Auth";
-import { Users } from "@app/database";
+import { UserProviders, Users } from "@app/database";
 import { encryptPassword } from "@app/utils";
 
 export class User {
@@ -25,7 +25,7 @@ export class User {
   async userCreate(data: Register) {
     try {
       const password = await encryptPassword(data.password);
-      return await Users.create({ name: data.name, email: data.email, password: password });
+      return await Users.create({ name: data.name, email: data.email, password: password, emailVerified: false });
     } catch (error) {
       throw error;
     }
@@ -44,5 +44,15 @@ export class User {
     } catch (error) {
       throw error;
     }
+  }
+
+
+  async userProviders(userId: number) {
+    try {
+      return await UserProviders.findAll({ where: { id: userId } });
+    } catch (error) {
+      throw error;
+    }
+
   }
 }

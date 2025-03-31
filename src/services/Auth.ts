@@ -1,12 +1,16 @@
 import * as EmailValidator from 'email-validator';
 import jwt from 'jsonwebtoken';
-import { Login, Register, UpdatedPassword } from "@app/schema/Auth";
-import { comparePasswords, generateRandomNumbers, returnError, throwError } from "@app/utils";
+import { OAuth2Client } from 'google-auth-library';
+
+import { GoogleCredential, Login, Register, UpdatedPassword } from "@app/schema";
+import { comparePasswords, encryptPassword, generateRandomNumbers, generateRandomToken, returnError, throwError } from "@app/utils";
 import { getEnv } from '@app/config/env';
 import { NewPasswords } from '@app/database/NewPasswords';
 import { User, Mail } from '@app/services';
+import { PROVIDERS } from '@app/types';
+import { UserProviders, Users } from '@app/database';
 
-const { JWT_KEY } = getEnv();
+const { JWT_KEY, GOOLE_CLIENT_ID } = getEnv();
 
 export class ServiceAuth extends User {
   constructor() {
@@ -108,5 +112,59 @@ export class ServiceAuth extends User {
     } catch (error) {
       return returnError(error);
     }
+  }
+
+
+
+  async google(data: GoogleCredential) {
+    try {
+      const { clientId, credential } = data;
+      const GoogleClient = new OAuth2Client(GOOLE_CLIENT_ID);
+
+      const ticket = await GoogleClient.verifyIdToken({
+        idToken: credential,
+        audience: clientId,
+      });
+
+      const payload = ticket.getPayload();
+
+      if (!payload) throwError(409, "Invalid Google credentials");
+
+      const { email, name, picture = "", sub, locale = "" } = payload;
+      const providerData: { clientId: string; provider: PROVIDERS } = { clientId: sub, provider: PROVIDERS.GOOGLE };
+
+      const existingProvider = await UserProviders.findOne({ where: providerData });
+
+      if (!existingProvider?.dataValues.userId && email && name) {
+        const user = await this.userByEmail(email);
+
+        if (!user?.dataValues.id) {
+          const newUser = await this.userCreate({ name, email, password: generateRandomToken(10) });
+          if (!newUser.dataValues.id) throwError(409, "Error creating user");
+          await this.linkUserProvider(newUser.dataValues.id, providerData, picture, locale);
+        } else {
+          await this.linkUserProvider(user.dataValues.id, providerData, picture, locale);
+          if (!user.dataValues.emailVerified) await this.verifyUserEmail(user.dataValues.id, picture);
+        }
+      } else {
+        const user = await Users.findByPk(existingProvider?.dataValues.userId);
+        if (!user?.dataValues.id) throwError(409, "User not found");
+
+        if (!user.dataValues.emailVerified) await this.verifyUserEmail(user.dataValues.id, picture);
+      }
+
+      return { status: 200, message: "Successfully authenticated" };
+    } catch (error) {
+      return returnError(error);
+    }
+  }
+
+  private async linkUserProvider(userId: number, providerData: { clientId: string; provider: string }, picture: string, locale: string) {
+    await UserProviders.create({ userId, clientId: providerData.clientId, provider: providerData.provider, picture, locale });
+  }
+
+
+  private async verifyUserEmail(userId: number, picture: string) {
+    await Users.update({ emailVerified: true, picture }, { where: { id: userId } });
   }
 }

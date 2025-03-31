@@ -1,6 +1,6 @@
-import { Functions } from "@app/utils";
 import { Register } from "@app/schema/Auth";
 import { Users } from "@app/database";
+import { encryptPassword } from "@app/utils";
 
 export class User {
 
@@ -24,7 +24,7 @@ export class User {
    */
   async userCreate(data: Register) {
     try {
-      const password = await Functions.encryptPassword(data.password);
+      const password = await encryptPassword(data.password);
       return await Users.create({ name: data.name, email: data.email, password: password });
     } catch (error) {
       throw error;
@@ -39,7 +39,7 @@ export class User {
    */
   async userUpdatePassword(password: string, user: number) {
     try {
-      const passwordEncrypt = await Functions.encryptPassword(password);
+      const passwordEncrypt = await encryptPassword(password);
       return await Users.update({ password: passwordEncrypt }, { where: { id: user } });
     } catch (error) {
       throw error;

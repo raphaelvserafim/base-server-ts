@@ -4,7 +4,7 @@ import { PlatformExpress } from "@tsed/platform-express";
 import { Server } from "@app/Server";
 import { Server as HttpServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
-import { SocketServices } from "@app/services";
+import { Routines, SocketServices } from "@app/services";
 
 
 async function bootstrap() {
@@ -20,7 +20,10 @@ async function bootstrap() {
       }
     });
 
+
     SocketServices.getInstance().setSocketServer(io);
+
+    Routines.getInstance().everyMinute();
 
 
     await new Promise<void>((resolve, reject) => {

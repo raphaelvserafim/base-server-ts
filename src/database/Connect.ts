@@ -1,8 +1,10 @@
 import { Sequelize } from "sequelize";
 import { getEnv } from '@app/config/env';
+import { isProduction } from "@app/config/envs";
 
 export class DB {
   private static instance: Sequelize;
+
   private constructor() { }
 
   static getInstance(): Sequelize {
@@ -12,18 +14,27 @@ export class DB {
         host: DB_HOST,
         dialect: 'mysql',
         timezone: '-04:00',
+        logging: isProduction,
         define: {
           underscored: true,
           freezeTableName: true,
         },
+        pool: {
+          max: 100,
+          min: 1,
+          acquire: 30000,
+          idle: 10000,
+        },
+        retry: {
+          max: 3,
+        }
       });
 
-      DB.instance.authenticate().then(() => {
-        console.log('Database connected successfully');
-      }).catch((error) => {
-        console.error('Unable to connect to the database:', error);
-        throw error;
-      });
+      DB.instance.authenticate()
+        .then(() => console.log('✅ Database connected successfully'))
+        .catch((error) => {
+          console.error('❌ Unable to connect to the database');
+        });
     }
     return DB.instance;
   }

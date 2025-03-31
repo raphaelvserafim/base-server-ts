@@ -1,33 +1,39 @@
-import { Login, Register, UpdatedPassword } from "@app/models/Auth";
+import { Login, Register, UpdatedPassword } from "@app/schema/Auth";
 import { ServiceAuth } from "@app/services/Auth";
-import { BodyParams, Controller, Post } from "@tsed/common";
+import { BodyParams, Controller, Post, Res } from "@tsed/common";
 import { Description, Name, Put } from "@tsed/schema";
 
 @Controller('/auth')
 @Name("AuthController")
 export class AuthController {
 
+  constructor(private auth: ServiceAuth) { }
+
   @Post("/login")
   @Description("Authenticates a user using their login credentials.")
-  async Auth(@BodyParams() data: Login) {
-    return ServiceAuth.login(data);
+  async Auth(@Res() resp: Res, @BodyParams() data: Login) {
+    const response = await this.auth.login(data);
+    return resp.status(response.status).json({ ...response });
   }
 
   @Post("/register")
   @Description("Registers a new user with the provided details.")
-  async Register(@BodyParams() data: Register) {
-    return ServiceAuth.register(data);
+  async Register(@Res() resp: Res, @BodyParams() data: Register) {
+    const response = await this.auth.register(data);
+    return resp.status(response.status).json({ ...response });
   }
 
   @Post("/password")
   @Description("Requests a verification code to reset the user's password.")
-  async RequestNewPassword(@BodyParams("email") email: string) {
-    return ServiceAuth.requestNewPassword(email);
+  async RequestNewPassword(@Res() resp: Res, @BodyParams("email") email: string) {
+    const response = await this.auth.requestNewPassword(email);
+    return resp.status(response.status).json({ ...response });
   }
 
   @Put("/password")
   @Description("Updates the user's password using the verification code.")
-  async UpdatePassword(@BodyParams() data: UpdatedPassword) {
-    return ServiceAuth.updatePassword(data);
+  async UpdatePassword(@Res() resp: Res, @BodyParams() data: UpdatedPassword) {
+    const response = await this.auth.updatePassword(data);
+    return resp.status(response.status).json({ ...response });
   }
 }

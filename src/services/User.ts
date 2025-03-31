@@ -1,15 +1,16 @@
 import { Functions } from "@app/utils";
-import { Register } from "@app/models/Auth";
+import { Register } from "@app/schema/Auth";
 import { Users } from "@app/database";
 
 export class User {
+
 
   /**
    * Buscando no banco de dados Usuario pelo E-mail
    * @param email email de cadastro do usuario
    * @returns 
    */
-  static async byEmail(email: string): Promise<any> {
+  async userByEmail(email: string) {
     try {
       return await Users.findOne({ where: { email: email } });
     } catch (error) {
@@ -21,10 +22,10 @@ export class User {
    * Salvando o usuario no Banco de dados
    * @param data dados do usuario
    */
-  static async save(data: Register): Promise<any> {
+  async userCreate(data: Register) {
     try {
       const password = await Functions.encryptPassword(data.password);
-      return await Users.create({ name: data.name, email: data.email, password: password, date_registration: new Date });
+      return await Users.create({ name: data.name, email: data.email, password: password });
     } catch (error) {
       throw error;
     }
@@ -36,7 +37,7 @@ export class User {
    * @param user 
    * @returns 
    */
-  static async updatePassword(password: string, user: number): Promise<any> {
+  async userUpdatePassword(password: string, user: number) {
     try {
       const passwordEncrypt = await Functions.encryptPassword(password);
       return await Users.update({ password: passwordEncrypt }, { where: { id: user } });

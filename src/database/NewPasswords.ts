@@ -1,31 +1,29 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { Users } from '@app/database/Users';
-import { NewPasswordsAttributes } from '@app/models/Db';
+import { DB, Users } from '@app/database';
 
-import { DB } from "@app/database";
+interface NewPasswordsAttributes {
+  id?: number;
+  userId: number;
+  token: string;
+  status: number;
+  expire: Date;
+}
 
-
-class NewPasswords extends Model<NewPasswordsAttributes> implements NewPasswordsAttributes {
-  public id!: number;
-  public userId!: number;
-  public token!: string;
-  public status!: boolean;
-  public expire!: Date;
+class NewPasswords extends Model<NewPasswordsAttributes> {
 
   public static initialize(sequelize: Sequelize) {
     NewPasswords.init(
       {
         id: {
           type: DataTypes.BIGINT,
-          allowNull: false,
-          primaryKey: true,
-          autoIncrement: true
+          autoIncrement: true,
+          primaryKey: true
         },
         userId: {
           type: DataTypes.BIGINT,
           allowNull: false,
           references: {
-            model: 'Users',
+            model: Users,
             key: 'id'
           }
         },
@@ -38,16 +36,15 @@ class NewPasswords extends Model<NewPasswordsAttributes> implements NewPasswords
           allowNull: true
         },
         status: {
-          type: DataTypes.BOOLEAN,
+          type: DataTypes.BIGINT,
           allowNull: false,
           defaultValue: true
         }
       },
       {
         sequelize,
-        modelName: 'NewPasswords',
         tableName: 'new_passwords',
-        timestamps: false
+        timestamps: true,
       }
     );
 

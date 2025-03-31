@@ -1,16 +1,8 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { UsersAttributes } from '@app/models/Db';
-
 import { DB } from "@app/database";
+import { UserAttributes } from '@app/types';
 
-
-class Users extends Model<UsersAttributes> implements UsersAttributes {
-  public id!: number;
-  public name: string;
-  public email: string;
-  public date_registration: Date;
-  public password: string;
-
+class Users extends Model<UserAttributes> {
   public static initialize(sequelize: Sequelize) {
     Users.init(
       {
@@ -26,22 +18,22 @@ class Users extends Model<UsersAttributes> implements UsersAttributes {
         },
         email: {
           type: DataTypes.STRING,
-          allowNull: false
+          allowNull: false,
+          unique: true,
+          validate: {
+            isEmail: true,
+          }
         },
         password: {
           type: DataTypes.STRING,
           allowNull: false
         },
-        date_registration: {
-          type: DataTypes.DATE,
-          allowNull: false
-        },
+
       },
       {
         sequelize,
-        modelName: 'Users',
         tableName: 'users',
-        timestamps: false,
+        timestamps: true,
         underscored: true,
       }
     );

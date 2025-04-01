@@ -1,7 +1,7 @@
 import { GoogleCredential, Login, Register, UpdatedPassword } from "@app/schema";
 import { ServiceAuth } from "@app/services";
-import { BodyParams, Controller, Post, Res } from "@tsed/common";
-import { Description, Name, Put, Summary } from "@tsed/schema";
+import { BodyParams, Controller, Post, QueryParams, Res } from "@tsed/common";
+import { Description, Name, Patch, Put, Summary } from "@tsed/schema";
 
 @Controller('/auth')
 @Name("AuthController")
@@ -41,6 +41,21 @@ export class AuthController {
   @Summary("auth google")
   async Google(@Res() resp: Res, @BodyParams() data: GoogleCredential) {
     const response = await this.auth.google(data);
+    return resp.status(response.status).json({ ...response });
+  }
+
+  @Post("/confirm-email")
+  @Summary("confirm email")
+  async ConfirmEmail(@Res() resp: Res, @BodyParams("email") email: string) {
+    const response = await this.auth.confirmEmail(email);
+    return resp.status(response.status).json({ ...response });
+  }
+
+
+  @Patch("/confirm-email")
+  @Summary("confirm email")
+  async UpdateConfirmEmail(@Res() resp: Res, @QueryParams("token") token: string) {
+    const response = await this.auth.updateConfirmEmail(token);
     return resp.status(response.status).json({ ...response });
   }
 

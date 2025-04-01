@@ -177,4 +177,61 @@ export class ServiceAuth extends User {
   private async verifyUserEmail(userId: number, picture: string) {
     await Users.update({ emailVerified: true, picture }, { where: { id: userId } });
   }
+
+
+
+
+  async confirmEmail(email: string) {
+    try {
+      const user = await this.userByEmail(email);
+
+      if (!user) {
+        throwError(404, "email not found")
+      }
+
+      if (user.dataValues.emailVerified) {
+        throwError(409, "email already confirmed")
+      }
+
+      const userId = Number(user.dataValues.id);
+
+      const code = jwt.sign({ userId }, JWT_KEY, { expiresIn: '30d' });
+
+      // const sending = await Mail.sendConfirmEmail(email, user?.dataValues?.name, String(code));
+
+      return { status: 201, message: "Code to confirm email sent to your email" };
+    } catch (error) {
+      return returnError(error);
+    }
+
+  }
+
+
+  async updateConfirmEmail(token: string) {
+    try {
+      const { userId } = jwt.verify(token, JWT_KEY) as { userId: number };
+
+      if (!userId) {
+        throwError(404, "code not found")
+      }
+
+      const user = await Users.findByPk(userId);
+
+      if (!user) {
+        throwError(404, "user not found")
+      }
+
+      if (user.dataValues.emailVerified) {
+        throwError(409, "email already confirmed");
+      }
+
+      await Users.update({ emailVerified: true }, { where: { id: userId } });
+
+      const session = this.generateSession({ userId: user.dataValues.id });
+
+      return { status: 200, session, message: "Email confirmed" };
+    } catch (error) {
+      return returnError(error);
+    }
+  }
 }

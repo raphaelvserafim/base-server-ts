@@ -1,24 +1,24 @@
-import { GoogleCredential, Login, Register, UpdatedPassword } from "@app/schema";
-import { ServiceAuth } from "@app/services";
-import { BodyParams, Controller, Post, QueryParams, Res } from "@tsed/common";
+import { GoogleCredentialSchema, LoginSchema, RegisterSchema, UpdatedPasswordSchema } from "@app/schemas";
+import { AuthService } from "@app/services";
+import { BodyParams, Controller, Inject, Post, QueryParams, Res } from "@tsed/common";
 import { Description, Name, Patch, Put, Summary } from "@tsed/schema";
 
 @Controller('/auth')
 @Name("AuthController")
 export class AuthController {
 
-  constructor(private auth: ServiceAuth) { }
+  @Inject() private auth: AuthService;
 
   @Post("/login")
   @Description("Authenticates a user using their login credentials.")
-  async Auth(@Res() resp: Res, @BodyParams() data: Login) {
+  async Auth(@Res() resp: Res, @BodyParams() data: LoginSchema) {
     const response = await this.auth.login(data);
     return resp.status(response.status).json({ ...response });
   }
 
   @Post("/register")
   @Description("Registers a new user with the provided details.")
-  async Register(@Res() resp: Res, @BodyParams() data: Register) {
+  async Register(@Res() resp: Res, @BodyParams() data: RegisterSchema) {
     const response = await this.auth.register(data);
     return resp.status(response.status).json({ ...response });
   }
@@ -32,14 +32,14 @@ export class AuthController {
 
   @Put("/password")
   @Description("Updates the user's password using the verification code.")
-  async UpdatePassword(@Res() resp: Res, @BodyParams() data: UpdatedPassword) {
+  async UpdatePassword(@Res() resp: Res, @BodyParams() data: UpdatedPasswordSchema) {
     const response = await this.auth.updatePassword(data);
     return resp.status(response.status).json({ ...response });
   }
 
   @Post("/google")
   @Summary("auth google")
-  async Google(@Res() resp: Res, @BodyParams() data: GoogleCredential) {
+  async Google(@Res() resp: Res, @BodyParams() data: GoogleCredentialSchema) {
     const response = await this.auth.google(data);
     return resp.status(response.status).json({ ...response });
   }

@@ -1,9 +1,8 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
-import { getEnv } from "@app/config/env";
-import { AuthSession } from "@app/types";
+import { IAuthSession } from "@app/interfaces";
+import { config } from "@app/config";
 
-const { JWT_KEY } = getEnv();
 
 export class SocketServices {
   private static instance: SocketServices;
@@ -29,8 +28,8 @@ export class SocketServices {
           throw new Error("No session provided");
         }
 
-        jwt.verify(session, JWT_KEY);
-        const decoded = jwt.decode(session) as AuthSession;
+        jwt.verify(session, config.jwt.secret);
+        const decoded = jwt.decode(session) as IAuthSession;
 
         this.addSocket(decoded, socket);
         return next();
@@ -47,7 +46,7 @@ export class SocketServices {
     });
   }
 
-  private addSocket(session: AuthSession, socket: Socket) {
+  private addSocket(session: IAuthSession, socket: Socket) {
     this.userSockets.set(session.userId, socket.id);
     socket.emit("auth_success", { message: "Authenticated" });
   }
@@ -72,5 +71,5 @@ export class SocketServices {
       this.io.to(socketId).emit(type, { data });
     }
   }
- 
+
 }

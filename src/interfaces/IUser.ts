@@ -1,4 +1,4 @@
-export interface UserAttributes {
+export interface IUserAttributes {
   id?: number;
   name: string;
   email: string;
@@ -7,7 +7,7 @@ export interface UserAttributes {
   picture?: string;
 }
 
-export interface AuthSession {
+export interface IAuthSession {
   userId: number;
 }
 
@@ -17,7 +17,7 @@ export enum PROVIDERS {
   FACEBOOK = "facebook",
 }
 
-export interface UserProvidersAttributes {
+export interface IUserProvidersAttributes {
   id?: number;
   userId: number;
   clientId: string;

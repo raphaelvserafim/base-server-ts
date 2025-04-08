@@ -1,8 +1,8 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { DB } from "@app/database";
-import { UserAttributes } from '@app/types';
+import { IUserAttributes } from '@app/interfaces';
 
-class Users extends Model<UserAttributes> {
+class Users extends Model<IUserAttributes> {
   public static initialize(sequelize: Sequelize) {
     Users.init(
       {

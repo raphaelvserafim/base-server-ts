@@ -1,11 +1,31 @@
-import {readFileSync} from "fs";
-import {envs} from "./envs/index";
-import loggerConfig from "./logger/index";
-const pkg = JSON.parse(readFileSync("./package.json", {encoding: "utf8"}));
+import { readFileSync } from "fs";
+const pkg = JSON.parse(readFileSync("./package.json", { encoding: "utf8" }));
+import { getEnv } from "@app/config/envs";
 
-export const config: Partial<TsED.Configuration> = {
+
+export const config = {
   version: pkg.version,
-  envs,
-  logger: loggerConfig,
-  // additional shared configuration
+  logger: {
+    level: "info",
+    disableRoutesSummary: true,
+    disableBootstrapLog: true,
+  },
+  jwt: {
+    secret: getEnv().JWT_KEY,
+    expiresIn: "90d",
+  },
+  google: {
+    clientId: getEnv().GOOLE_CLIENT_ID,
+  },
+  email: {
+    sendGrid: {
+      apiKey: getEnv().TOKEN_SEND_GRID,
+    }
+  },
+  system: {
+    name: getEnv().SYSTEM_NAME,
+    emailNotifications: getEnv().EMAIL_NOTIFICATIONS,
+  }
+
+
 };

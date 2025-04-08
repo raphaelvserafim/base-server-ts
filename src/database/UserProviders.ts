@@ -1,9 +1,9 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { DB, Users } from "@app/database";
-import { PROVIDERS, UserProvidersAttributes } from '@app/types';
+import { IUserProvidersAttributes, PROVIDERS } from '@app/interfaces';
 
 
-class UserProviders extends Model<UserProvidersAttributes> {
+class UserProviders extends Model<IUserProvidersAttributes> {
 
   public static initialize() {
     const sequelize = DB.getInstance() as Sequelize;

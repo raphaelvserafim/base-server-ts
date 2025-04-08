@@ -1,4 +1,4 @@
-import { Register } from "@app/schema/Auth";
+import { Register } from "@app/schemas/Auth";
 import { UserProviders, Users } from "@app/database";
 import { encryptPassword } from "@app/utils";
 

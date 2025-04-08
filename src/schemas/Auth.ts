@@ -1,6 +1,6 @@
 import { Example, Property } from "@tsed/schema";
 
-export class Login {
+export class LoginSchema {
   @Property()
   @Example("")
   email: string;
@@ -8,7 +8,7 @@ export class Login {
   @Example("")
   password: string;
 }
-export class Register {
+export class RegisterSchema {
   @Property()
   @Example("")
   name: string;
@@ -22,7 +22,7 @@ export class Register {
 }
 
 
-export class UpdatedPassword {
+export class UpdatedPasswordSchema {
   @Property()
   @Example("")
   code: string;
@@ -31,7 +31,7 @@ export class UpdatedPassword {
   password: string;
 }
 
-export class GoogleCredential {
+export class GoogleCredentialSchema {
   @Property()
   @Example("")
   credential: string;

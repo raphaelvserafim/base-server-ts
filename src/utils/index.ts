@@ -1,7 +1,6 @@
 import fs, { existsSync, lstatSync, readdirSync, rmdirSync, unlinkSync } from "fs";
 import ffmpeg from 'fluent-ffmpeg';
 import * as crypto from 'crypto';
-import bcrypt from 'bcrypt';
 import mime from 'mime-types';
 import { PassThrough } from 'stream';
 import { buffer } from 'stream/consumers';
@@ -56,18 +55,6 @@ export function generateRandomNumbers(length: number) {
   }
   const result = randomNumbers.join('');
   return result;
-}
-
-
-
-export async function encryptPassword(password: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10);
-  return bcrypt.hash(password, salt);
-}
-
-
-export async function comparePasswords(plainPassword: string, hashedPassword: string) {
-  return bcrypt.compare(plainPassword, hashedPassword);
 }
 
 

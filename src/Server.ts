@@ -36,8 +36,8 @@ import * as pages from "@app/controllers/pages/index";
       spec: {
         info: {
           version: '1.0.0',
-          title: 'Base API',
-          description: 'Base API documentation',
+          title: 'API',
+          description: 'API documentation',
           contact: {
             name: 'API Support',
             url: 'https://github.com/raphaelvserafim',
@@ -71,6 +71,9 @@ import * as pages from "@app/controllers/pages/index";
     extensions: {
       ejs: "ejs"
     }
+  },
+  logger: {
+    level: "info"
   },
   exclude: [
     "**/*.spec.ts"

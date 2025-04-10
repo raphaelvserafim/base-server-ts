@@ -4,34 +4,36 @@ import { BodyParams, Controller, Inject, Post, QueryParams, Res } from "@tsed/co
 import { Description, Name, Patch, Put, Summary } from "@tsed/schema";
 
 @Controller('/auth')
-@Name("AuthController")
+@Name("Authentication")
+@Description("Handles user authentication and registration.")
+ 
 export class AuthController {
 
   @Inject() private auth: AuthService;
 
   @Post("/login")
-  @Description("Authenticates a user using their login credentials.")
+  @Summary("Authenticates a user using their login credentials.")
   async Auth(@Res() resp: Res, @BodyParams() data: LoginSchema) {
     const response = await this.auth.login(data);
     return resp.status(response.status).json({ ...response });
   }
 
   @Post("/register")
-  @Description("Registers a new user with the provided details.")
+  @Summary("Registers a new user with the provided details.")
   async Register(@Res() resp: Res, @BodyParams() data: RegisterSchema) {
     const response = await this.auth.register(data);
     return resp.status(response.status).json({ ...response });
   }
 
   @Post("/password")
-  @Description("Requests a verification code to reset the user's password.")
+  @Summary("Requests a verification code to reset the user's password.")
   async RequestNewPassword(@Res() resp: Res, @BodyParams("email") email: string) {
     const response = await this.auth.requestNewPassword(email);
     return resp.status(response.status).json({ ...response });
   }
 
   @Put("/password")
-  @Description("Updates the user's password using the verification code.")
+  @Summary("Updates the user's password using the verification code.")
   async UpdatePassword(@Res() resp: Res, @BodyParams() data: UpdatedPasswordSchema) {
     const response = await this.auth.updatePassword(data);
     return resp.status(response.status).json({ ...response });

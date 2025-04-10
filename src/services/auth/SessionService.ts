@@ -3,7 +3,7 @@ import { config } from '@app/config';
 import { throwError } from '@app/utils';
 
 export class SessionService {
-  
+
   static generate(payload: {}, expiresIn = 7): string {
     return jwt.sign(payload, config.jwt.secret, { expiresIn: `${expiresIn}d` });
   }

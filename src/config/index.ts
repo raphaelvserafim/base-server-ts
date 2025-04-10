@@ -18,6 +18,7 @@ export const config = {
     clientId: getEnv().GOOLE_CLIENT_ID,
   },
   email: {
+    provider: "sendgrid",
     sendGrid: {
       apiKey: getEnv().TOKEN_SEND_GRID,
     }
@@ -25,6 +26,7 @@ export const config = {
   system: {
     name: getEnv().SYSTEM_NAME,
     emailNotifications: getEnv().EMAIL_NOTIFICATIONS,
+    domain: "",
   }
 
 

@@ -3,6 +3,7 @@ import { DB } from "@app/database";
 import { IUserAttributes } from '@app/interfaces';
 
 class Users extends Model<IUserAttributes> {
+   
   public static initialize(sequelize: Sequelize) {
     Users.init(
       {

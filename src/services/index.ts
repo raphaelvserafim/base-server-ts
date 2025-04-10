@@ -1,4 +1,5 @@
-export * from "./Auth";
+export * from "./auth";
+export * from "./AuthService";
 export * from "./Mail";
 export * from "./User";
 export * from "./Socket";

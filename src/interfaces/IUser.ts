@@ -25,3 +25,10 @@ export interface IUserProvidersAttributes {
   locale: string;
   picture: string;
 }
+
+export interface IUserService {
+  userByEmail(email: string): Promise<IUserAttributes | null>;
+  userCreate(data: IUserAttributes): Promise<IUserAttributes>;
+  userUpdatePassword(password: string, userId: number): Promise<void>;
+  userProviders(userId: number): Promise<IUserProvidersAttributes[]>;
+}

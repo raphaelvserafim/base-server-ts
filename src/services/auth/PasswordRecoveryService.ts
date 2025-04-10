@@ -1,14 +1,14 @@
 import { Users, NewPasswords } from "@app/database";
-import { Mail } from "@app/services";
 import { throwError } from "@app/utils";
-import { AuthUtils } from "./AuthUtils";
+import { MailService, AuthUtils } from "@app/services";
+import { EmailProviderFactory } from "@app/providers";
 
 export class PasswordRecoveryService {
 
   static async request(email: string) {
     if (!email) throwError(400, "email not found");
 
-    
+
     const user = await Users.findOne({ where: { email } });
     if (!user?.dataValues.id) throwError(404, "email not found");
 
@@ -21,7 +21,10 @@ export class PasswordRecoveryService {
 
     await NewPasswords.create({ userId, token, status: 1, expire });
 
-    await Mail.sendCodeNewPassword(email, user.dataValues.name, token);
+
+    const mailService = new MailService(EmailProviderFactory.create());
+    
+    await mailService.sendCodeNewPassword(email, user.dataValues.name, token);
 
     return { status: 201, message: "Code sent to your email" };
   }

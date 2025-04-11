@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "rootDirs": ["src"],
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
-      "@app/*": ["*"]
+      "@app/*": ["src/*"]
     },
     "plugins": [
       { "transform": "typescript-transform-paths" },

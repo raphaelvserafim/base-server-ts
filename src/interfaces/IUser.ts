@@ -1,10 +1,16 @@
 export interface IUserAttributes {
   id?: number;
   name: string;
-  email: string;
-  password: string;
-  emailVerified: boolean;
   picture?: string;
+}
+
+export interface IUserCredentials {
+  id?: number;
+  userId: number;
+  email: string;
+  emailVerified: boolean;
+  password: string;
+
 }
 
 export interface IAuthSession {
@@ -15,6 +21,7 @@ export interface IAuthSession {
 export enum PROVIDERS {
   GOOGLE = "google",
   FACEBOOK = "facebook",
+  EMAIL = "email",
 }
 
 export interface IUserProvidersAttributes {

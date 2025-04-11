@@ -3,7 +3,7 @@ import { DB } from "@app/database";
 import { IUserAttributes } from '@app/interfaces';
 
 class Users extends Model<IUserAttributes> {
-   
+
   public static initialize(sequelize: Sequelize) {
     Users.init(
       {
@@ -16,23 +16,6 @@ class Users extends Model<IUserAttributes> {
         name: {
           type: DataTypes.STRING,
           allowNull: false
-        },
-        email: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          unique: true,
-          validate: {
-            isEmail: true,
-          }
-        },
-        password: {
-          type: DataTypes.STRING,
-          allowNull: false
-        },
-        emailVerified: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false
         },
         picture: {
           type: DataTypes.STRING,

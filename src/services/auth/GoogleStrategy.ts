@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import { config } from '@app/config';
 import { throwError, generateRandomToken } from '@app/utils';
-import { Users, UserProviders } from '@app/database';
+import { Users, UserProviders, UserCredentials } from '@app/database';
 import { SessionService } from '@app/services';
 import { PROVIDERS } from '@app/interfaces';
 
@@ -37,7 +37,7 @@ export class GoogleStrategy {
   }
 
   private static async findOrCreateUser(payload: any): Promise<number> {
-    const { email, name, picture = '', sub, locale = '' } = payload;
+    const { email, name, picture, sub, locale } = payload;
 
     if (!sub) throwError(400, 'Missing Google sub ID');
     const providerData = { provider: 'google' as PROVIDERS, clientId: sub };
@@ -50,26 +50,32 @@ export class GoogleStrategy {
 
     if (!email) throwError(400, 'Email not found');
 
-    let user = await Users.findOne({ where: { email } });
+    let user = await UserCredentials.findOne({ where: { email } });
+    let userId = Number(user?.dataValues.id);
 
-    if (!user) {
-      user = await Users.create({
-        name: name || 'Unknown',
-        email,
-        password: generateRandomToken(10),
-        emailVerified: true,
+    if (!userId) {
+      const userData = {
+        name,
         picture,
+      };
+      const newUser = await Users.create(userData);
+      userId = Number(newUser.dataValues.id);
+      await UserCredentials.create({
+        userId,
+        email,
+        emailVerified: true,
+        password: generateRandomToken(32),
       });
     }
 
     await UserProviders.create({
-      userId: Number(user.dataValues.id),
+      userId,
       provider: providerData.provider,
       clientId: providerData.clientId,
       locale,
       picture,
     });
 
-    return Number(user.dataValues.id);
+    return userId;
   }
 }

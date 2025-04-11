@@ -8,18 +8,19 @@ import { AuthUtils, GoogleStrategy, PasswordRecoveryService, SessionService } fr
 import { LoginSchema, RegisterSchema, UpdatedPasswordSchema, GoogleCredentialSchema } from '@app/schemas';
 
 import { IAuthService, } from '@app/interfaces';
-import { Users } from '@app/database';
+import { UserCredentials, Users } from '@app/database';
 
 @Service()
 export class AuthService implements IAuthService {
 
   async login(data: LoginSchema): Promise<{ status: number; message: string; session?: string; }> {
     try {
-      const user = await Users.findOne({ where: { email: data.email } });
+      const user = await UserCredentials.findOne({ where: { email: data.email } });
+
       if (!user) {
         throwError(404, "email not found");
       }
-      const userId = Number(user.dataValues.id);
+      const userId = Number(user.dataValues.userId);
       const password = user.dataValues.password;
 
       const validPassword = await AuthUtils.comparePassword(data.password, password);
@@ -45,10 +46,23 @@ export class AuthService implements IAuthService {
       if (!data.password) throwError(400, "enter password first");
 
 
-      const user = await Users.findOne({ where: { email: data.email } });
+      const user = await UserCredentials.findOne({ where: { email: data.email } });
 
       if (user) {
         throwError(400, "email already registered");
+      }
+
+
+      const userData = {
+        name: data.name,
+      };
+
+      const newUser = await Users.create(userData);
+
+      const userId = Number(newUser.dataValues.id);
+
+      if (!userId) {
+        throwError(400, "error creating user");
       }
 
       const hashedPassword = await AuthUtils.encryptPassword(data.password);
@@ -56,17 +70,12 @@ export class AuthService implements IAuthService {
         throwError(400, "error hashing password");
       }
 
-      const newUser = await Users.create({
-        ...data,
+      await UserCredentials.create({
+        userId,
+        email: data.email,
         password: hashedPassword,
         emailVerified: false
-      })
-
-      const userId = Number(newUser.dataValues.id);
-
-      if (!userId) {
-        throwError(400, "error creating user");
-      }
+      });
 
       const session = SessionService.generate({ userId });
 
@@ -100,7 +109,8 @@ export class AuthService implements IAuthService {
 
   async confirmEmail(email: string): Promise<{ status: number; message: string; }> {
     try {
-      const user = await Users.findOne({ where: { email } });
+      const user = await UserCredentials.findOne({ where: { email } });
+
 
       if (!user) {
         throwError(404, "email not found")
@@ -129,7 +139,8 @@ export class AuthService implements IAuthService {
         throwError(404, "code not found")
       }
 
-      const user = await Users.findByPk(userId);
+      const user = await UserCredentials.findOne({ where: { userId } });
+
 
       if (!user) {
         throwError(404, "user not found")
@@ -139,7 +150,7 @@ export class AuthService implements IAuthService {
         throwError(409, "email already confirmed");
       }
 
-      await Users.update({ emailVerified: true }, { where: { id: userId } });
+      await user.update({ emailVerified: true });
 
       const session = SessionService.generate({ userId: user.dataValues.id });
 

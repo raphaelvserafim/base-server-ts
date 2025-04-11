@@ -28,6 +28,4 @@ export const config = {
     emailNotifications: getEnv().EMAIL_NOTIFICATIONS,
     domain: "",
   }
-
-
 };

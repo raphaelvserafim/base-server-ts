@@ -10,6 +10,8 @@ export interface IUserCredentials {
   email: string;
   emailVerified: boolean;
   password: string;
+  user?: IUserAttributes;
+
 
 }
 

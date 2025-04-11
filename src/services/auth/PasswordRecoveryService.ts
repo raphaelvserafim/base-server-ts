@@ -1,4 +1,4 @@
-import { Users, NewPasswords } from "@app/database";
+import { Users, NewPasswords, UserCredentials } from "@app/database";
 import { throwError } from "@app/utils";
 import { MailService, AuthUtils } from "@app/services";
 import { EmailProviderFactory } from "@app/providers";
@@ -9,7 +9,12 @@ export class PasswordRecoveryService {
     if (!email) throwError(400, "email not found");
 
 
-    const user = await Users.findOne({ where: { email } });
+    const user = await UserCredentials.findOne({
+      where: { email }, include: [{
+        model: Users, as: "user", attributes: ["name"]
+      }]
+    });
+
     if (!user?.dataValues.id) throwError(404, "email not found");
 
     const userId = user.dataValues.id;
@@ -23,8 +28,11 @@ export class PasswordRecoveryService {
 
 
     const mailService = new MailService(EmailProviderFactory.create());
+
+    const name = user?.dataValues?.user?.name || "";
+
+    await mailService.sendCodeNewPassword(email, name, token);
     
-    await mailService.sendCodeNewPassword(email, user.dataValues.name, token);
 
     return { status: 201, message: "Code sent to your email" };
   }
@@ -36,7 +44,10 @@ export class PasswordRecoveryService {
     if (!reset.dataValues.status) throwError(400, "code already used");
 
     const hashed = await AuthUtils.encryptPassword(password);
-    await Users.update({ password: hashed }, { where: { id: reset.dataValues.userId } });
+
+
+    await UserCredentials.update({ password: hashed }, { where: { id: reset.dataValues.userId } });
+
     await NewPasswords.update({ status: 2 }, { where: { token: code } });
 
     return { status: 200, message: "Updated successfully" };

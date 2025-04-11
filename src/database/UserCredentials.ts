@@ -1,5 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { DB } from "@app/database";
+import { DB, Users } from "@app/database";
 import { IUserCredentials } from '@app/interfaces';
 
 class UserCredentials extends Model<IUserCredentials> {
@@ -14,8 +14,12 @@ class UserCredentials extends Model<IUserCredentials> {
           autoIncrement: true
         },
         userId: {
-          type: DataTypes.STRING,
-          allowNull: false
+          type: DataTypes.BIGINT,
+          allowNull: false,
+          references: {
+            model: Users,
+            key: 'id',
+          },
         },
         email: {
           type: DataTypes.STRING,
@@ -46,5 +50,8 @@ class UserCredentials extends Model<IUserCredentials> {
 }
 
 UserCredentials.initialize(DB.getInstance());
+
+UserCredentials.belongsTo(Users, { foreignKey: 'userId', as: "user" });
+
 
 export { UserCredentials };

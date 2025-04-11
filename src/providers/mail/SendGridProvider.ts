@@ -8,7 +8,7 @@ export class SendGridProvider implements IEmailProvider {
     sgMail.setApiKey(config.email.sendGrid.apiKey);
   }
 
-  async send(to: string, from: string, subject: string, html: string): Promise<void> {
+  async send({ to, from, subject, html }: { to: string, from: string, subject: string, html: string }): Promise<void> {
     await sgMail.send({ to, from, subject, html });
   }
 }

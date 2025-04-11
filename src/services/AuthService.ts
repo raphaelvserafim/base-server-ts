@@ -1,5 +1,4 @@
 import { Service } from '@tsed/di';
-import * as EmailValidator from 'email-validator';
 
 import { returnError, throwError } from "@app/utils";
 
@@ -9,17 +8,22 @@ import { LoginSchema, RegisterSchema, UpdatedPasswordSchema, GoogleCredentialSch
 
 import { IAuthService, } from '@app/interfaces';
 import { UserCredentials, Users } from '@app/database';
+import { AuthValidator } from '@app/validators';
 
 @Service()
 export class AuthService implements IAuthService {
 
   async login(data: LoginSchema): Promise<{ status: number; message: string; session?: string; }> {
     try {
+
+      AuthValidator.validateLogin(data);
+     
       const user = await UserCredentials.findOne({ where: { email: data.email } });
 
       if (!user) {
         throwError(404, "email not found");
       }
+
       const userId = Number(user.dataValues.userId);
       const password = user.dataValues.password;
 
@@ -40,11 +44,7 @@ export class AuthService implements IAuthService {
 
   async register(data: RegisterSchema): Promise<{ status: number; message: string; session?: string; }> {
     try {
-      if (!data.name) throwError(400, "enter name first");
-      if (!data.email) throwError(400, "enter email first");
-      if (!EmailValidator.validate(data.email)) throwError(400, "invalid email");
-      if (!data.password) throwError(400, "enter password first");
-
+      AuthValidator.validateRegister(data);
 
       const user = await UserCredentials.findOne({ where: { email: data.email } });
 

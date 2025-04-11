@@ -1,9 +1,6 @@
 import fs, { existsSync, lstatSync, readdirSync, rmdirSync, unlinkSync } from "fs";
-import ffmpeg from 'fluent-ffmpeg';
 import * as crypto from 'crypto';
 import mime from 'mime-types';
-import { PassThrough } from 'stream';
-import { buffer } from 'stream/consumers';
 
 export const delay = (ms: number | undefined) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -95,17 +92,6 @@ export function isValidPhoneNumber(phoneNumber: string) {
 }
 
 
-export function isStrongPassword(password: string) {
-  // const strongPasswordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,}$/;
-  return password.length > 4;//(password);
-}
-
-
-export function isValidEmail(email: string) {
-  const emailRegex = /^[^\s@+]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
 export function throwError(statusCode: number, message: string): never {
   const error = new Error(message);
   (error as any).statusCode = statusCode;
@@ -123,62 +109,6 @@ export function returnError(error: any) {
 }
 
 
-export async function convertMp3ToOgg(inputBuffer: Buffer): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const inputStream = new PassThrough();
-    inputStream.end(inputBuffer);
-    const outputStream = new PassThrough();
-    ffmpeg(inputStream)
-      .toFormat('ogg')
-      .audioCodec('libopus')
-      .audioBitrate('32k')
-      .audioFrequency(48000)
-      .audioChannels(1)
-      .on('error', (err: any) => {
-        console.error('Erro ao converter:', err);
-        reject(err);
-      })
-      .pipe(outputStream, { end: true });
-
-    buffer(outputStream).then(resolve).catch(reject);
-  });
-
-}
-
-
-export async function convertInstagram(inputBuffer: Buffer): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const inputStream = new PassThrough();
-    inputStream.end(inputBuffer);
-    const outputStream = new PassThrough();
-    ffmpeg(inputStream)
-
-      .on('error', (err: any) => {
-        console.error('Erro ao converter:', err);
-        reject(err);
-      })
-      .pipe(outputStream, { end: true });
-    buffer(outputStream).then(resolve).catch(reject);
-  });
-}
-
-
-export function parseVCard(vcard: string) {
-  if (typeof vcard !== "string") {
-    vcard = String(vcard);
-  }
-  const nameMatch = vcard?.match(/FN:(.+)/);
-  const phoneMatch = vcard?.match(/TEL[^:]*:([\d+\s()-]+)/);
-
-  if (!nameMatch || !phoneMatch) {
-    return {};
-  }
-
-  return {
-    name: nameMatch[1].trim(),
-    phone: phoneMatch[1].replace(/\D/g, ""), // Remove caracteres não numéricos
-  };
-}
 
 export function getExtensionFromBase64(base64: string) {
   const matches = base64.match(/^data:(.*?);base64,/);

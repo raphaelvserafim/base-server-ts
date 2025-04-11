@@ -1,7 +1,6 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
-import jwt from "jsonwebtoken";
 import { IAuthSession } from "@app/interfaces";
-import { config } from "@app/config";
+import { SessionService } from "./auth";
 
 
 export class SocketServices {
@@ -23,15 +22,8 @@ export class SocketServices {
 
     this.io.use((socket, next) => {
       try {
-        const session = (socket.handshake.auth.session as string)?.split(" ")[1];
-        if (!session) {
-          throw new Error("No session provided");
-        }
-
-        jwt.verify(session, config.jwt.secret);
-        const decoded = jwt.decode(session) as IAuthSession;
-
-        this.addSocket(decoded, socket);
+        const session = SessionService.verify(socket.handshake.auth.session as string);
+        this.addSocket(session, socket);
         return next();
       } catch (error) {
         socket.emit("auth_error", { message: "Invalid session" });
@@ -60,13 +52,12 @@ export class SocketServices {
     }
   }
 
-
   sendNotification(userIds: number[], type: string, data: { [key: string]: any }) {
     for (const user of userIds) {
       const socketId = this.userSockets.get(user);
       if (!socketId) {
         console.warn(`⚠️ Usuário ${user} não está conectado.`);
-        return;
+        continue;
       }
       this.io.to(socketId).emit(type, { data });
     }

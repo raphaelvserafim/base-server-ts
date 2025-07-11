@@ -10,4 +10,5 @@ export interface IEnv {
   SYSTEM_NAME: string;
   JWT_KEY: string;
   GOOLE_CLIENT_ID: string;
+  INFOBIP_API_KEY: string;
 }

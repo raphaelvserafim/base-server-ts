@@ -26,5 +26,6 @@ export const getEnv = (): IEnv => {
     SYSTEM_NAME: env.SYSTEM_NAME as string,
     JWT_KEY: env.JWT_KEY as string,
     GOOLE_CLIENT_ID: env.GOOLE_CLIENT_ID as string,
+    INFOBIP_API_KEY: env.INFOBIP_API_KEY as string,
   };
 };

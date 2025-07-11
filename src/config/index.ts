@@ -27,5 +27,11 @@ export const config = {
     name: getEnv().SYSTEM_NAME,
     emailNotifications: getEnv().EMAIL_NOTIFICATIONS,
     domain: "",
+  },
+  sms: {
+    provider: "infobip",
+    infobip: {
+      apiKey: getEnv().INFOBIP_API_KEY,
+    }
   }
 };

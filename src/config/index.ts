@@ -15,7 +15,9 @@ export const config = {
     expiresIn: "90d",
   },
   google: {
-    clientId: getEnv().GOOLE_CLIENT_ID,
+    clientId: getEnv().GOOGLE_CLIENT_ID,
+    clientSecret: getEnv().GOOGLE_CLIENT_SECRET,
+    redirectUri: getEnv().GOOGLE_REDIRECT_URI,
   },
   email: {
     provider: "sendgrid",

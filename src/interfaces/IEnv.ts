@@ -9,6 +9,8 @@ export interface IEnv {
   EMAIL_NOTIFICATIONS: string;
   SYSTEM_NAME: string;
   JWT_KEY: string;
-  GOOLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  GOOGLE_REDIRECT_URI: string;
   INFOBIP_API_KEY: string;
 }

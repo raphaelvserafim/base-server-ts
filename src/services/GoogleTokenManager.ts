@@ -1,4 +1,5 @@
-import { IAuthSession, IGoogleTokens, IGoogleTokenManager } from '@app/interfaces';
+import { IGoogleTokens, } from '@app/interfaces';
+import { IAuthSession } from '@app/types/index.js';
 import fs from 'fs';
 
 export class GoogleTokenManager {

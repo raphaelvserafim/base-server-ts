@@ -1,10 +1,10 @@
 import { OAuth2Client } from 'google-auth-library';
-import { config } from '@app/config';
-import { throwError, generateRandomToken } from '@app/utils';
-import { Users, UserProviders, UserCredentials } from '@app/database';
-import { SessionService } from '@app/services';
-import { IGoogleTokens, PROVIDERS } from '@app/interfaces';
+import { config } from '@app/config/index.js';
+import { throwError, } from '@app/utils/index.js';
+import { SessionService } from '@app/services/index.js';
+import { IGoogleTokens, PROVIDERS } from '@app/interfaces/index.js';
 import { TokenPayload } from 'google-auth-library';
+import { UserProvidersEntity, UsersEntity } from '@app/database';
 
 interface GoogleAuthInput {
   credential: string;
@@ -341,17 +341,16 @@ export class GoogleStrategy {
     email: string;
     picture?: string;
   }> {
-    const user = await Users.findByPk(userId);
-    const credentials = await UserCredentials.findOne({ where: { userId } });
+    const user = await UsersEntity.findByPk(userId);
 
-    if (!user || !credentials) {
+    if (!user || !user.dataValues?.password) {
       throwError(404, 'User not found');
     }
 
     return {
       id: userId,
       name: user.dataValues.name || '',
-      email: credentials.dataValues.email,
+      email: user.dataValues.email || '',
       picture: user.dataValues.picture || undefined
     };
   }
@@ -360,7 +359,7 @@ export class GoogleStrategy {
    * Verifica se já existe provider vinculado
    */
   private async findExistingProvider(googleSubId: string): Promise<number | null> {
-    const existingProvider = await UserProviders.findOne({
+    const existingProvider = await UserProvidersEntity.findOne({
       where: {
         provider: PROVIDERS.GOOGLE,
         clientId: googleSubId,
@@ -374,11 +373,8 @@ export class GoogleStrategy {
    * Encontra usuário existente por email
    */
   private async findExistingUserByEmail(email: string): Promise<number | null> {
-    const user = await UserCredentials.findOne({
-      where: { email: email.toLowerCase().trim() },
-    });
 
-    return user ? Number(user.dataValues.userId) : null;
+    return 0;
   }
 
   /**
@@ -392,29 +388,11 @@ export class GoogleStrategy {
   ): Promise<number> {
 
     try {
-      const newUser = await Users.create({
-        name: userData.name?.trim() || '',
-        picture: userData.picture || ''
-      });
-      const userId = Number(newUser.dataValues.id);
-
-      await UserCredentials.create({
-        userId,
-        email: email.toLowerCase().trim(),
-        emailVerified: true,
-        password: generateRandomToken(32),
-      });
-
-      await UserProviders.create({
-        userId,
-        provider: PROVIDERS.GOOGLE,
-        clientId: googleSubId,
-        locale: locale?.trim() || '',
-        picture: userData.picture || '',
-      });
 
 
-      return userId;
+
+
+      return 0;
     } catch (error) {
       console.error('Error creating new user:', error);
       throw error;
@@ -432,7 +410,7 @@ export class GoogleStrategy {
   ): Promise<void> {
     try {
       // Evita duplicação de provider
-      const existingLink = await UserProviders.findOne({
+      const existingLink = await UserProvidersEntity.findOne({
         where: {
           userId,
           provider: PROVIDERS.GOOGLE,
@@ -441,13 +419,15 @@ export class GoogleStrategy {
       });
 
       if (!existingLink) {
-        await UserProviders.create({
+        /*
+        await UserProvidersEntity.create({
           userId,
-          provider: PROVIDERS.GOOGLE,
+          provider: 'GOOGLE' as PROVIDERS,
           clientId: googleSubId,
           locale: locale?.trim() || '',
           picture: picture || '',
         });
+        */
       } else {
         // Atualiza informações se necessário
         await existingLink.update({
@@ -466,7 +446,7 @@ export class GoogleStrategy {
    */
   async unlinkGoogleProvider(userId: number, googleSubId: string): Promise<boolean> {
     try {
-      const deleted = await UserProviders.destroy({
+      const deleted = await UserProvidersEntity.destroy({
         where: {
           userId,
           provider: PROVIDERS.GOOGLE,

@@ -11,14 +11,8 @@ export interface IUserCredentials {
   emailVerified: boolean;
   password: string;
   user?: IUserAttributes;
-
-
 }
-
-export interface IAuthSession {
-  userId: number;
-}
-
+ 
 
 export enum PROVIDERS {
   GOOGLE = "google",

@@ -1,12 +1,64 @@
-import { Err, ResponseErrorObject, Middleware, Next, Res, Req } from "@tsed/common";
+export * from "./RateLimit.js";
+import { Err, ResponseErrorObject, Middleware, Next, Res, Req, HeaderParams, Context, } from "@tsed/common";
 import { Env } from "@tsed/core";
 import { Constant } from "@tsed/di";
-import { Exception } from "@tsed/exceptions";
+import { Exception, } from "@tsed/exceptions";
+import { IUserPermission, } from "@app/types/index.js";
+import { SessionService } from "@app/services/index.js";
+
+function extractToken(authorization: string | undefined): string | undefined {
+  return authorization?.split(' ')[1];
+}
+
+
+function unauthorizedResponse(response: Res, message: string): void {
+  response.status(401).json({ status: 401, message });
+}
+
 
 @Middleware()
 export class NotFoundMiddleware {
-  use(@Res() response: Res, @Next() next: Next) {
+  use(@Res() response: Res,) {
     response.status(404).json({ status: 404, message: 'Not found' });
+  }
+}
+
+
+@Middleware()
+export class Authenticated {
+  async use(@HeaderParams("Authorization") authorization: string, @Res() response: Res, @Next() next: Next, @Context() context: Context) {
+    try {
+      const token = extractToken(authorization);
+      const decoded = SessionService.verify(token || '');
+
+      if (!decoded?.userId) {
+        return unauthorizedResponse(response, "unauthorized");
+      }
+      context.set("session", { userId: decoded.userId, permission: decoded.permission });
+      next();
+    } catch (error) {
+      response.status(401).json({ status: 401, message: error?.toString() });
+    }
+  }
+}
+
+
+
+@Middleware()
+export class OnlyAdmin {
+  async use(@HeaderParams("Authorization") authorization: string, @Res() response: Res, @Next() next: Next, @Context() context: Context) {
+    try {
+      const token = extractToken(authorization);
+      const decoded = SessionService.verify(token || '');
+
+      if (!decoded?.userId || decoded.permission !== IUserPermission.ADMIN) {
+        return unauthorizedResponse(response, "unauthorized -> Insufficient permissions.");
+      }
+      context.set("session", { userId: decoded.userId, permission: decoded.permission });
+      next();
+    } catch (error) {
+      response.status(401).json({ status: 401, message: error?.toString() });
+    }
   }
 }
 
@@ -35,7 +87,7 @@ function getHeaders(error: any) {
 @Middleware()
 export class GlobalErrorHandlerMiddleware {
   @Constant("env")
-  env: Env;
+  env!: Env;
 
   use(@Err() error: any, @Req() request: Req, @Res() response: Res): any {
     if (typeof error === "string") {

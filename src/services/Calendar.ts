@@ -1,10 +1,11 @@
-import { IAuthSession, ICalendarService, IMeetingData } from "@app/interfaces";
+import { ICalendarService, IMeetingData } from "@app/interfaces";
 import { GoogleCalendar } from "./GoogleCalendar";
-import { throwError } from "@app/utils";
+import { throwError } from "@app/utils/index.js";
 import { GoogleTokenManager } from "./GoogleTokenManager";
+import { IAuthSession } from "@app/types/index.js";
 
 export class CalendarService implements ICalendarService {
-  
+
   private calendar: GoogleCalendar;
 
   constructor(session: IAuthSession) {

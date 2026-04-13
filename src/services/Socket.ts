@@ -1,7 +1,7 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
-import { IAuthSession } from "@app/interfaces";
-import { SessionService } from "./auth";
-
+import { SessionService } from "@app/services/auth/index.js";
+import { IAuthSession } from "@app/types/index.js";
+ 
 
 export class SocketServices {
   private static instance: SocketServices;

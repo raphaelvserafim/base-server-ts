@@ -30,7 +30,7 @@ export async function deleteFolderRecursive(path: fs.PathLike): Promise<void> {
     readdirSync(path).forEach(function (file: any) {
       var curPath = path + "/" + file;
       if (lstatSync(curPath).isDirectory()) {
-        this.deleteFolderRecursive(curPath);
+        deleteFolderRecursive(curPath);
       } else {
         unlinkSync(curPath);
       }

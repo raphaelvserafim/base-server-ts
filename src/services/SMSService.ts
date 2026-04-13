@@ -1,4 +1,4 @@
-import { ISMSProvider } from "@app/interfaces";
+import { ISMSProvider } from "@app/interfaces/index.js";
 
 export class SMSService {
 

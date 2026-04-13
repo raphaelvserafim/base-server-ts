@@ -1,14 +1,12 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { DB, Users } from "@app/database";
-import { IUserProvidersAttributes, PROVIDERS } from '@app/interfaces';
+import { PROVIDERS, UserProvidersAttributes } from '@app/types/index.js';
+import { UsersEntity } from '@app/database/index.js';
 
+class UserProvidersEntity extends Model<UserProvidersAttributes> {
 
-class UserProviders extends Model<IUserProvidersAttributes> {
+  public static initialize(sequelize: Sequelize) {
 
-  public static initialize() {
-    const sequelize = DB.getInstance() as Sequelize;
-
-    UserProviders.init(
+    this.init(
       {
         id: {
           type: DataTypes.BIGINT,
@@ -20,7 +18,7 @@ class UserProviders extends Model<IUserProvidersAttributes> {
           type: DataTypes.BIGINT,
           allowNull: false,
           references: {
-            model: Users,
+            model: UsersEntity,
             key: 'id',
           },
         },
@@ -53,10 +51,4 @@ class UserProviders extends Model<IUserProvidersAttributes> {
   }
 }
 
-
-UserProviders.initialize();
-
-UserProviders.belongsTo(Users, { foreignKey: 'userId', as: 'user' });
-Users.hasMany(UserProviders, { foreignKey: 'userId', as: 'providers' });
-
-export { UserProviders };
+export { UserProvidersEntity };

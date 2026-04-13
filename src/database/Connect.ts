@@ -1,10 +1,10 @@
 import { Sequelize } from "sequelize";
-import { dbConfig } from "@app/config/database";
+import { dbConfig } from "@app/config/database.js";
 
 export class DB {
   private static instance: Sequelize;
   private constructor() { }
-  
+
   static getInstance(): Sequelize {
     if (!DB.instance) {
       DB.instance = new Sequelize(
@@ -13,13 +13,14 @@ export class DB {
         dbConfig.password,
         { ...dbConfig.options, }
       );
-
-      DB.instance.authenticate()
-        .then(() => console.log('✅ Database connected successfully'))
-        .catch((error) => {
-          console.error('❌ Unable to connect to the database');
-        });
     }
+
     return DB.instance;
+  }
+
+  static async connect(): Promise<void> {
+    const db = DB.getInstance();
+    await db.authenticate();
+    console.log('✅ Database connected successfully');
   }
 }

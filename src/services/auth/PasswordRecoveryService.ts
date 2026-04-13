@@ -1,54 +1,45 @@
-import { Users, NewPasswords, UserCredentials } from "@app/database";
-import { throwError } from "@app/utils";
-import { MailService, AuthUtils } from "@app/services";
-import { EmailProviderFactory } from "@app/providers";
+import { throwError } from "@app/utils/index.js";
+import { MailService, AuthUtils } from "@app/services/index.js";
+import { EmailProviderFactory } from "@app/providers/index.js";
+import { UsersEntity } from "@app/database/index.js";
+import { EmailVerificationCodeService } from "@app/services/auth/index";
 
 export class PasswordRecoveryService {
 
-  static async request(email: string) {
+  static async request({ email }: { email: string, }) {
     if (!email) throwError(400, "email not found");
 
+    const user = await UsersEntity.findOne({ where: { email } });
 
-    const user = await UserCredentials.findOne({
-      where: { email }, include: [{
-        model: Users, as: "user", attributes: ["name"]
-      }]
-    });
+    if (!user) {
+      throwError(404, "user not found")
+    }
 
-    if (!user?.dataValues.id) throwError(404, "email not found");
+    if (user?.dataValues?.emailVerified) {
+      throwError(409, "email already confirmed")
+    }
 
-    const userId = user.dataValues.id;
-    const existing = await NewPasswords.findOne({ where: { userId } });
-    if (existing?.dataValues.id) throwError(400, "code already sent");
-
-    const token = String(Math.floor(10000 + Math.random() * 90000));
-    const expire = new Date(Date.now() + 2 * 60 * 60 * 1000);
-
-    await NewPasswords.create({ userId, token, status: 1, expire });
+    const code = EmailVerificationCodeService.generateCode();
+    await EmailVerificationCodeService.storeCode(Number(user.dataValues.id), code);
 
 
-    const mailService = new MailService(EmailProviderFactory.create());
+    const Mail = new MailService(EmailProviderFactory.create());
 
-    const name = user?.dataValues?.user?.name || "";
+    await Mail.sendCodeNewPassword(email, user.dataValues.name, code);
 
-    await mailService.sendCodeNewPassword(email, name, token);
-    
 
     return { status: 201, message: "Code sent to your email" };
   }
 
 
+
+
   static async update(code: string, password: string) {
-    const reset = await NewPasswords.findOne({ where: { token: code } });
-    if (!reset) throwError(404, "code not found");
-    if (!reset.dataValues.status) throwError(400, "code already used");
+    if (!code || !password) throwError(400, "code and password are required");
 
     const hashed = await AuthUtils.encryptPassword(password);
 
 
-    await UserCredentials.update({ password: hashed }, { where: { id: reset.dataValues.userId } });
-
-    await NewPasswords.update({ status: 2 }, { where: { token: code } });
 
     return { status: 200, message: "Updated successfully" };
   }

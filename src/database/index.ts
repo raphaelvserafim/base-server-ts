@@ -1,8 +1,3 @@
-export * from "./Connect";
-export * from "./Users";
-export * from "./UserProviders";
-export * from "./NewPasswords";
-export * from "./UserCredentials";
-
-
-
+export * from "@app/database/connect.js";
+export * from "@app/database/models/index.js";
+export * from "@app/database/initialize.js";

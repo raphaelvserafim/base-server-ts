@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-  <title>Base API</title>
+  <title>Documentação</title>
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet" />
   <style>
     body,
@@ -46,7 +45,6 @@
 
     .container-logo img {
       max-width: 150px;
-      border-radius: 50%;
     }
 
     ul {
@@ -93,14 +91,13 @@
   <div class="container">
     <div>
       <div class="container-logo">
-        <img src="https://avatars.githubusercontent.com/u/68257896?v=4" alt="Ts.ED">
+        <% if (typeof systemLogo !=='undefined' && systemLogo) { %>
+          <img src="<%= systemLogo %>" alt="Logotipo do sistema">
+          <% } %>
       </div>
-
       <ul>
         <% docs.forEach((doc)=> { %>
-
-          <li><a href="<%= doc.path %>"><span>Documentation <%= doc.specVersion %></span></a></li>
-
+          <li><a href="<%= doc.path %>"><span>Documentação <%= doc.specVersion %></span></a></li>
           <% }) %>
       </ul>
     </div>

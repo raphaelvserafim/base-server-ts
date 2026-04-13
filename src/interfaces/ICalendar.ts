@@ -1,4 +1,5 @@
-import { IAuthSession } from "./IUser";
+import { IAuthSession } from "@app/types/index.js";
+
 
 export interface IMeetingData {
   title: string;

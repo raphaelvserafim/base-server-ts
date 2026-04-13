@@ -6,16 +6,16 @@
       "@app/*": ["src/*"]
     },
     "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+      { "transform": "typescript-transform-paths", "useRootDirs": true },
+      { "transform": "typescript-transform-paths", "useRootDirs": true, "afterDeclarations": true }
     ],
-    "module": "commonjs",
-    "target": "esnext",
+    "module": "NodeNext",
+    "target": "ES2022",
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "isolatedModules": false,
     "suppressImplicitAnyIndexErrors": false,
     "noImplicitAny": true,
@@ -28,9 +28,11 @@
     "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "useDefineForClassFields": false,
+    "skipLibCheck": true,
     "lib": [
-      "es7",
-      "dom",
+      "ES2022",
+      "DOM",
       "ESNext.AsyncIterable"
     ],
     "typeRoots": [

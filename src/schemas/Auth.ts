@@ -3,42 +3,52 @@ import { Example, Property } from "@tsed/schema";
 export class LoginSchema {
   @Property()
   @Example("")
-  email: string;
+  email!: string;
   @Property()
   @Example("")
-  password: string;
+  password!: string;
 }
 export class RegisterSchema {
   @Property()
   @Example("")
-  name: string;
+  name!: string;
 
   @Property()
   @Example("")
-  email: string;
+  email!: string;
+
   @Property()
   @Example("")
-  password: string;
+  recaptchaToken!: string;
+
+  @Property()
+  @Example("")
+  phone?: string;
+
+
+  @Property()
+  @Example("")
+  password!: string;
 }
 
 
 export class UpdatedPasswordSchema {
   @Property()
   @Example("")
-  code: string;
+  code!: string;
   @Property()
   @Example("")
-  password: string;
+  password!: string;
 }
 
 export class GoogleCredentialSchema {
   @Property()
   @Example("")
-  credential: string;
+  credential!: string;
 
   @Property()
   @Example("")
-  clientId: string;
+  clientId!: string;
 
 
 }

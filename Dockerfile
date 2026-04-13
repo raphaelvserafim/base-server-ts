@@ -1,48 +1,65 @@
-###############################################################################
-###############################################################################
-##                      _______ _____ ______ _____                           ##
-##                     |__   __/ ____|  ____|  __ \                          ##
-##                        | | | (___ | |__  | |  | |                         ##
-##                        | |  \___ \|  __| | |  | |                         ##
-##                        | |  ____) | |____| |__| |                         ##
-##                        |_| |_____/|______|_____/                          ##
-##                                                                           ##
-## description     : Dockerfile for TsED Application                         ##
-## author          : TsED team                                               ##
-## date            : 2023-12-11                                              ##
-## version         : 3.0                                                     ##
-##                                                                           ##
-###############################################################################
-###############################################################################
+# ==============================================================================
+# 1. ETAPA DE BUILD (Aqui chamamos de "builder")
+# ==============================================================================
+FROM node:22-alpine AS builder
 
-ARG NODE_VERSION=20.10.0
+WORKDIR /app
 
-FROM node:${NODE_VERSION}-alpine as build
-WORKDIR /opt
+# Instala ferramentas pro Alpine conseguir compilar dependências do Node
+RUN apk add --no-cache python3 make g++
 
-COPY package.json yarn.lock tsconfig.json tsconfig.compile.json .barrelsby.json ./
+# Copia os arquivos de pacotes primeiro (Melhora o cache)
+COPY package.json yarn.lock ./
 
-RUN yarn install --pure-lockfile
+# Instala todas as dependências (incluindo as de desenvolvimento)
+RUN yarn install --frozen-lockfile
 
-COPY ./src ./src
-
-RUN yarn build
-
-FROM node:${NODE_VERSION}-alpine as runtime
-ENV WORKDIR /opt
-WORKDIR $WORKDIR
-
-RUN apk update && apk add build-base git curl
-RUN npm install -g pm2
-
-COPY --from=build /opt .
-
-RUN yarn install --pure-lockfile --production
-
+# Copia todo o resto do seu código
 COPY . .
 
-EXPOSE 8081
-ENV PORT 8081
-ENV NODE_ENV production
+# Faz o build (Isso deve gerar a pasta /app/dist)
+RUN yarn build
 
-CMD ["pm2-runtime", "start", "processes.config.js", "--env", "production"]
+# Limpa o lixo e deixa apenas as dependências de produção para economizar espaço
+RUN rm -rf node_modules && \
+    yarn install && \
+    yarn cache clean
+
+# ==============================================================================
+# 2. ETAPA DE PRODUÇÃO (Aqui montamos a imagem final leve e segura)
+# ==============================================================================
+FROM node:22-alpine AS production
+
+WORKDIR /app
+
+# Dependências nativas e fuso horário
+RUN apk add --no-cache ffmpeg tzdata
+ENV TZ=America/Cuiaba \
+    NODE_ENV=production \
+    FFMPEG_PATH=/usr/bin/ffmpeg
+
+# IMPORTANTE: Aqui ele vai buscar os arquivos da etapa "builder" lá de cima!
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/package.json ./package.json
+
+# Se o erro do /dist persistir, é porque o 'yarn build' não está criando a pasta dist
+COPY --from=builder --chown=node:node /app/dist ./dist
+
+# Se você não usa essas pastas (statics, views, html), PODE APAGAR essas 3 linhas abaixo!
+COPY --from=builder --chown=node:node /app/statics ./statics 
+COPY --from=builder --chown=node:node /app/views ./views
+COPY --from=builder --chown=node:node /app/html ./html
+
+# Copia o script de inicialização
+COPY --chown=node:node start.sh ./
+
+# Dá permissão para executar
+RUN chmod +x start.sh
+
+# Troca para o usuário seguro (não-root)
+USER node
+
+EXPOSE 3000
+
+# Executa o seu script start.sh
+CMD ["./start.sh"]

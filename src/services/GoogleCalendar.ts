@@ -3,6 +3,7 @@ import { calendar_v3, google } from 'googleapis';
 import { GoogleStrategy } from './auth';
 
 export class GoogleCalendar {
+  //@ts-ignore
   private oauth2Client: GoogleStrategy;
 
   /**

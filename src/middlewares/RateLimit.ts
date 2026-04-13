@@ -17,7 +17,7 @@ function getIp(req: any): string {
 
 @Middleware()
 export class AuthRateLimit {
-  private static readonly MAX = 10;
+  private static readonly MAX = 100;
   private static readonly WINDOW_MS = 900_000; // 15 min
 
   async use(@Req() req: Req, @Res() res: Res, @Next() next: Next) {
